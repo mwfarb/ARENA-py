@@ -30,6 +30,7 @@ CLR_HUDTEXT = (200, 200, 200)  # light gray
 CLR_NUDGE = (255, 255, 0)  # yellow
 CLR_SCALE = (0, 0, 255)  # blue
 CLR_ROTATE = (255, 165, 0)  # orange
+CLR_STRETCH = (255, 0, 0)  # red
 CLR_SELECT = (255, 255, 0)  # yellow
 CLR_GRID = (0, 255, 0)  # green
 CLR_ENABLED = (255, 255, 255)  # white
@@ -431,6 +432,19 @@ def rotate_obj(realm, scene, object_id, rot):
         "w": arena.agran(rot[3])
     }}
     update_persisted_obj(realm, scene, object_id, "Rotated", data=data)
+
+
+def stretch_obj(realm, scene, object_id, scale, pos):
+    data = {"scale": {
+        "x": arena.agran(scale[0]),
+        "y": arena.agran(scale[1]),
+        "z": arena.agran(scale[2])
+    }, "position": {
+        "x": arena.agran(pos[0]),
+        "y": arena.agran(pos[1]),
+        "z": arena.agran(pos[2])
+    }}
+    update_persisted_obj(realm, scene, object_id, "Stretched", data=data)
 
 
 def delete_obj(realm, scene, object_id):

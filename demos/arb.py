@@ -5,7 +5,6 @@
 
 # pylint: disable=missing-docstring
 
-# TODO: stretch (6Dof)
 # TODO: highlight mouseenter to avoid click
 # TODO: fix follow unlock position relative, not default
 # TODO: handle click-listener objects with 1.1 x scale shield?
@@ -398,6 +397,33 @@ def do_rotate_select(camname, object_id):
     USERS[camname].set_textright("rot"+str(euler))
 
 
+def do_stretch_select(camname, object_id):
+    pobjs = arblib.get_network_persisted_obj(object_id, BROKER, SCENE)
+    if not pobjs:
+        return
+    obj = arblib.ObjectPersistence(pobjs[0])
+    color = arblib.CLR_STRETCH
+    delim = "_stretch_"
+    callback = stretchline_callback
+    # generate child 6dof non-persist, clickable lines
+    make_clickline("px", 1.1, obj, delim, color, callback)
+    make_clickline("px", -1.1, obj, delim, color, callback)
+    make_clickline("py", 1.1, obj, delim, color, callback)
+    make_clickline("py", -1.1, obj, delim, color, callback)
+    make_clickline("pz", 1.1, obj, delim, color, callback)
+    make_clickline("pz", -1.1, obj, delim, color, callback)
+    make_clickline("nx", 1, obj, delim, color, callback)
+    make_clickline("nx", -1, obj, delim, color, callback)
+    make_clickline("ny", 1, obj, delim, color, callback)
+    make_clickline("ny", -1, obj, delim, color, callback)
+    make_clickline("nz", 1, obj, delim, color, callback)
+    make_clickline("nz", -1, obj, delim, color, callback)
+    make_followspot(obj, delim, color)
+    sca = obj.scale
+    scale = (round(sca[0], 3), round(sca[1], 3), round(sca[2], 3))
+    USERS[camname].set_textright("scale"+str(scale))
+
+
 def make_followspot(obj, delimiter, color):
     arena.Object(  # follow spot on ground
         objType=arena.Shape.circle,
@@ -579,6 +605,43 @@ def rotateline_callback(event=None):
     arblib.rotate_obj(REALM, SCENE, object_id, rotated)
     print(str(obj.rotation) + " to " + str(rotated))
     do_rotate_select(event.source, object_id)  # update rotatelines
+
+
+def stretchline_callback(event=None):
+    if event.event_type == arena.EventType.mouseenter:
+        USERS[event.source].set_textstatus(event.object_id)
+    elif event.event_type == arena.EventType.mouseleave:
+        USERS[event.source].set_textstatus("")
+    # allow any user to stretch an object
+    if event.event_type != arena.EventType.mousedown:
+        return
+    stretch_id = event.object_id.split("_stretch_")
+    object_id = stretch_id[0]
+    direction = (stretch_id[1])[:2]
+    pobjs = arblib.get_network_persisted_obj(object_id, BROKER, SCENE)
+    if not pobjs:
+        return
+    obj = arblib.ObjectPersistence(pobjs[0])
+    stretched = rot = obj.rotation
+    inc = arblib.NUDGE_INCR
+    if direction == "xp":
+        stretched = (incr_pos(rot[0], inc), rot[1], rot[2])
+    elif direction == "xn":
+        stretched = (incr_neg(rot[0], inc), rot[1], rot[2])
+    elif direction == "yp":
+        stretched = (rot[0], incr_pos(rot[1], inc), rot[2])
+    elif direction == "yn":
+        stretched = (rot[0], incr_neg(rot[1], inc), rot[2])
+    elif direction == "zp":
+        stretched = (rot[0], rot[1], incr_pos(rot[2], inc))
+    elif direction == "zn":
+        stretched = (rot[0], rot[1], incr_neg(rot[2], inc))
+    if scaled[0] <= 0 or scaled[1] <= 0 or scaled[2] <= 0:
+        return
+    stretched = arblib.rotation_euler2quat(stretched)
+    arblib.stretch_obj(REALM, SCENE, object_id, scale, pos)
+    print(str(obj.rotation) + " to " + str(stretched))
+    do_stretch_select(event.source, object_id)  # update stretchlines
 
 
 def create_obj(clipboard, location):
@@ -786,6 +849,8 @@ def scene_callback(msg):
                 do_scale_select(camname, objid)
             elif USERS[camname].mode == Mode.ROTATE:
                 do_rotate_select(camname, objid)
+            elif USERS[camname].mode == Mode.STRETCH :
+                do_stretch_select(camname, objid)
             elif USERS[camname].mode == Mode.COLOR:
                 arblib.color_obj(REALM, SCENE, objid,
                                  USERS[camname].target_style)
