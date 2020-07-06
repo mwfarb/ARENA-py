@@ -7,7 +7,6 @@
 
 # TODO: stretch (6Dof)
 # TODO: highlight mouseenter to avoid click
-# TODO: fix follow unlock position relative, not default
 # TODO: handle click-listener objects with 1.1 x scale shield?
 # TODO: add easy doc overlay for each button operation
 # TODO: models in clipboard origin may be outside reticle
@@ -734,14 +733,14 @@ def scene_callback(msg):
                                    json_msg["data"]["rotation"]["y"],
                                    json_msg["data"]["rotation"]["z"],
                                    json_msg["data"]["rotation"]["w"])
-        # USERS[camname].set_textstatus(
-        #    str(USERS[camname].rotation))  # TODO debug
+        rec = arblib.rotation_quat2euler(USERS[camname].rotation)
 
         rx = json_msg["data"]["rotation"]["x"]
         ry = json_msg["data"]["rotation"]["y"]
         # print ("rx " + str(rx) + " ry " + str(ry) +
         #       " | ory " + str(users[camname].locky))
-
+        USERS[camname].lockx = 0
+        USERS[camname].locky = 0.7
         # floating controller
         if not USERS[camname].follow_lock:
             ty = -(ry + USERS[camname].locky) / 0.7 * math.pi / 2
@@ -749,10 +748,23 @@ def scene_callback(msg):
             px = arblib.PANEL_RADIUS * -math.cos(ty)
             py = arblib.PANEL_RADIUS * math.sin(tx)
             pz = arblib.PANEL_RADIUS * math.sin(ty)
-            USERS[camname].follow.position(location=(px, py, pz))
-        # else: # TODO: panel lock location drop is inaccurate
-            # users[camname].lockx = rx + arblib.LOCK_XOFF
-            # users[camname].locky = -(ry * math.pi) - arblib.LOCK_YOFF
+
+            rep = arblib.rotation_quat2euler((0.7, 0, 0, 0.7))
+            rep = (rep[0], -rec[1], rep[2])
+            rqp = arblib.rotation_euler2quat(rep)
+
+            USERS[camname].set_textstatus(
+                str((round(rec[0]), round(rec[1]), round(rec[2])))
+                + str((round(rep[0]), round(rep[1]), round(rep[2])))
+            )
+            USERS[camname].follow.update(
+                location=(px, py, pz),
+                rotation=rqp
+            )
+        # else:
+            # lock panel to new rotation
+            #USERS[camname].lockx = rx + arblib.LOCK_XOFF
+            #USERS[camname].locky = -(ry * math.pi) - arblib.LOCK_YOFF
 
     # mouse event
     elif json_msg["action"] == "clientEvent":

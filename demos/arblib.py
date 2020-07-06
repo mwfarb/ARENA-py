@@ -23,8 +23,6 @@ SCALE_INCR = 0.1  # meters
 ROTATE_INCR = 5  # degrees
 CLIP_RADIUS = 1  # meters
 PANEL_RADIUS = 0.75  # meters
-LOCK_XOFF = 0  # quaternion vector
-LOCK_YOFF = 0.7  # quaternion vector
 TTL_TEMP = 30  # seconds
 CLR_HUDTEXT = (200, 200, 200)  # light gray
 CLR_NUDGE = (255, 255, 0)  # yellow
@@ -111,8 +109,8 @@ class User:
         self.mode = Mode.NONE
         self.target_id = self.location = self.rotation = None
         self.target_style = self.typetext = ""
-        self.locky = LOCK_YOFF
-        self.lockx = LOCK_XOFF
+        self.locky = 0
+        self.lockx = 0
         self.wloc_start = self.wloc_end = None
         self.wrot_start = self.wrot_end = None
         self.lamp = None
