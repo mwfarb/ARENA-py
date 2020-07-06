@@ -425,24 +425,26 @@ def make_clickline(deg, linelen, obj, delimiter, color, callback, ghost=False):
     elif deg == "z":
         endz = linelen * arblib.CLICKLINE_LEN
     arena.Object(  # reference line
-        # objType=arena.Shape.line,
-        objType=arena.Shape.thickline,
+        objType=arena.Shape.line,
+        # objType=arena.Shape.thickline,
         objName=(object_id + delimiter + deg + direction+"_line"),
         # color=color,
         ttl=arblib.TTL_TEMP,
         # data=('{"start": {"x":' + str(start[0]) +
-        #      ',"y":' + str(start[1]) +
-        #      ',"z":' + str(start[2]) + '}, ' +
-        #      '"end": {"x":' + str(start[0]+endx) +
-        #      ',"y":' + str(start[1]+endy) +
-        #      ',"z":' + str(start[2]+endz) + '}}'),
-        thickline=arena.Thickline({
-            start, (start[0]+endx, start[1]+endy, start[2]+endz)}, 1, arblib.rgb2hex(color)),
+        #     ',"y":' + str(start[1]) +
+        #     ',"z":' + str(start[2]) + '}, ' +
+        #     '"end": {"x":' + str(start[0]+endx) +
+        #     ',"y":' + str(start[1]+endy) +
+        #     ',"z":' + str(start[2]+endz) + '}}'),
+        line=arena.Line(
+            start, (start[0]+endx, start[1]+endy, start[2]+endz), 1, arblib.rgb2hex(color)),
+        # thickline=arena.Thickline({
+        #     start, (start[0]+endx, start[1]+endy, start[2]+endz)}, 1, arblib.rgb2hex(color)),
     )
     if ghost:
         arena.Object(  # ghostline aligns to parent rotation
-            # objType=arena.Shape.line,
-            objType=arena.Shape.thickline,
+            objType=arena.Shape.line,
+            # objType=arena.Shape.thickline,
             objName=(object_id + delimiter + deg + direction+"_ghost"),
             # color=color,
             ttl=arblib.TTL_TEMP,
@@ -451,8 +453,10 @@ def make_clickline(deg, linelen, obj, delimiter, color, callback, ghost=False):
             #      '"end": {"x":' + str(endx * 10) +
             #      ',"y":' + str(endy * 10) +
             #      ',"z":' + str(endz * 10) + '}}'),
-            thickline=arena.Thickline({
-                (0, 0, 0), (endx*10, endy*10, endz*10)}, 1, arblib.rgb2hex(color)),
+            line=arena.Line(
+                (0, 0, 0), (endx*10, endy*10, endz*10), 1, arblib.rgb2hex(color)),
+            # thickline=arena.Thickline({
+            #    (0, 0, 0), (endx*10, endy*10, endz*10)}, 1, arblib.rgb2hex(color)),
         )
     arena.Object(  # click object
         objType=arena.Shape.sphere,
