@@ -2,7 +2,7 @@
 ''' Demonstrate setting apriltags which can receive external updates.
     The apriltag #450 must be visible from a webxr browser camera.
     Position, Rotation, and Model should remain in sync across subscribers.
-    Camera: https://xr.andrew.cmu.edu/?scene=volatile&localTagSolver=true&camUpdateRate=16
+    Camera: https://xr.andrew.cmu.edu/?scene=volatile&localTagSolver=true&cvRate=10
     All: https://xr.andrew.cmu.edu/?scene=volatile
 '''
 import arena
